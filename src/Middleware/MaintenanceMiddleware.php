@@ -45,7 +45,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
      */
     public function __construct(array $config = []){
 
-        $this->setConfig(array_merge_recursive($this->_defaultConfig, $config));
+        $this->setConfig(array_merge($this->_defaultConfig, $config));
     }
 
     /**
