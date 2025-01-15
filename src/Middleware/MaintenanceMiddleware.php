@@ -35,13 +35,24 @@ class MaintenanceMiddleware implements MiddlewareInterface {
         'trust_proxy' => false
     ];
 
+    /**
+     * @var string|null
+     */
     private ?string $_clientIp = null;
 
-    public function __construct($config = []){
+    /**
+     * @param array $config
+     */
+    public function __construct(array $config = []){
 
         $this->setConfig(array_merge_recursive($this->_defaultConfig, $config));
     }
 
+    /**
+     * @param  ServerRequestInterface  $request
+     * @param  RequestHandlerInterface $handler
+     * @return ResponseInterface
+     */
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 
         if(property_exists($request, 'trustProxy') && method_exists($request, 'clientIP')){
@@ -71,13 +82,13 @@ class MaintenanceMiddleware implements MiddlewareInterface {
     private function _isMaintenance(): bool {
 
         switch($this->getConfig('check_method')){
-            case CheckMethod::FILE:
+            case MaintenanceCheckMethod::FILE:
                 if(!$this->_checkFile()){
                     return false;
                 }
                 break;
 
-            case CheckMethod::FLAG:
+            case MaintenanceCheckMethod::FLAG:
                 $flag = $this->_checkFlag();
                 if($flag === false){
                     return false;
@@ -96,7 +107,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
     }
 
     /**
-     * @return bool
+     * @return boolean
      */
     private function _checkFile(): bool {
 
@@ -119,7 +130,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
     }
 
     /**
-     * @return bool
+     * @return boolean
      */
     private function _isThruIP(): bool {
 
@@ -137,15 +148,14 @@ class MaintenanceMiddleware implements MiddlewareInterface {
         }
 
         foreach(array_map('trim', $thruIPArray) as $thruIP){
-            // サブネットマスクが指定されていない場合 /32 を追加
             if(!str_contains($thruIP, '/')){
                 $thruIP .= '/32';
             }
-            // IPアドレスの書式チェック
+
             if(!preg_match(self::IP_ADDR_REGEX_PATTERN, $thruIP)){
-                // 書式が不正
                 continue;
             }
+
             list($ip, $mask) = explode('/', $thruIP);
             $ipLong = ip2long($ip);
             if($ipLong === false || !is_numeric($mask)){
