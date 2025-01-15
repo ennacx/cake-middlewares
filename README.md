@@ -91,3 +91,8 @@ Recommended to insert it next to RoutingMiddleware.
   * Specify the message to be passed to the CakePHP Exception argument if there is one. If not, leave it unspecified or specify ```null```.
 * trust_proxy
   * This is necessary to determine whether to obtain the IP from ```X-Forwareded-For```, in order to obtain the IP from the ```clientIP()``` method of the ```\Cake\Http\ServerRequest``` object and determine whether it is an IP to be passed through.
+
+## License
+[MIT](https://en.wikipedia.org/wiki/MIT_License)
+
+[CreativeCommons BY-SA](https://creativecommons.org/licenses/by-sa/4.0/)
