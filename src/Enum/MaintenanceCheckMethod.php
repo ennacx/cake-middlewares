@@ -8,4 +8,6 @@ enum MaintenanceCheckMethod {
     case FILE;
 
     case FLAG;
+
+    case DATE;
 }

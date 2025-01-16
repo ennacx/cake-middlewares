@@ -54,9 +54,13 @@ class Application extends BaseApplication
 
                 'is_maintenance' => true,
 
-                'maintenance_message' => env('MAINTENANCE_MESSAGE', null),
+                'check_date_from'   => null,
+                'check_date_to'     => null,
+                'check_date_format' => 'Y-m-d H:i:s',
 
-                'trust_proxy' => (env('USE_PROXY', 'false') === 'true')
+                'maintenance_message' => 'Sorry, we are currently performing server maintenance.',
+
+                'trust_proxy' => true
             ]))
 
             // Parse various types of encoded request bodies so that they are

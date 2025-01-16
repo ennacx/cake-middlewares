@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Ennacx\CakeMiddlewares\Middleware;
 
-use Cake\Core\InstanceConfigTrait;
 use Cake\Http\Exception\ServiceUnavailableException;
 use Ennacx\CakeMiddlewares\Enum\MaintenanceCheckMethod;
 use Psr\Http\Message\ResponseInterface;
@@ -12,8 +11,6 @@ use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 class MaintenanceMiddleware implements MiddlewareInterface {
-
-    use InstanceConfigTrait;
 
     private const IP_ADDR_REGEX_PATTERN = '/^(([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\/([1-9]|1[0-9]|2[0-9]|3[0-2])$/';
 
@@ -30,10 +27,17 @@ class MaintenanceMiddleware implements MiddlewareInterface {
         'check_file_path' => TMP . 'maintenance',
 
         'is_maintenance' => false,
+
+        'check_date_from'   => null,
+        'check_date_to'     => null,
+        'check_date_format' => 'Y-m-d H:i:s',
+
         'maintenance_message' => null,
 
         'trust_proxy' => false
     ];
+
+    private array $_config;
 
     /**
      * @var string|null
@@ -45,7 +49,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
      */
     public function __construct(array $config = []){
 
-        $this->setConfig(array_merge($this->_defaultConfig, $config));
+        $this->_config = array_merge($this->_defaultConfig, $config);
     }
 
     /**
@@ -56,7 +60,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 
         if(property_exists($request, 'trustProxy') && method_exists($request, 'clientIP')){
-            $request->trustProxy = $this->getConfig('trust_proxy');
+            $request->trustProxy = $this->_config['trust_proxy'];
 
             $temp = $request->clientIP();
             if(!empty($temp)){
@@ -66,7 +70,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
         }
 
         if($this->_isMaintenance()){
-            $message = $this->getConfig('maintenance_message');
+            $message = $this->_config['maintenance_message'];
             if(empty($message)){
                 $message = null;
             }
@@ -81,7 +85,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
      */
     private function _isMaintenance(): bool {
 
-        switch($this->getConfig('check_method')){
+        switch($this->_config['check_method']){
             case MaintenanceCheckMethod::FILE:
                 if(!$this->_checkFile()){
                     return false;
@@ -91,6 +95,12 @@ class MaintenanceMiddleware implements MiddlewareInterface {
             case MaintenanceCheckMethod::FLAG:
                 $flag = $this->_checkFlag();
                 if($flag === false){
+                    return false;
+                }
+                break;
+
+            case MaintenanceCheckMethod::DATE:
+                if(!$this->_checkDate()){
                     return false;
                 }
                 break;
@@ -111,7 +121,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
      */
     private function _checkFile(): bool {
 
-        $path = $this->getConfig('check_file_path');
+        $path = $this->_config['check_file_path'];
         if(!empty($path) && is_string($path) && file_exists($path)){
             return true;
         }
@@ -124,9 +134,45 @@ class MaintenanceMiddleware implements MiddlewareInterface {
      */
     private function _checkFlag(): ?bool {
 
-        $flag = $this->getConfig('is_maintenance');
+        $flag = $this->_config['is_maintenance'];
 
         return (is_bool($flag)) ? $flag : null;
+    }
+
+    /**
+     * @return boolean
+     */
+    private function _checkDate(): bool {
+
+        if($this->_config['check_date_from'] === null && $this->_config['check_date_to'] === null){
+            return false;
+        }
+
+        $now = new \DateTime();
+        $from = ($this->_config['check_date_from'] !== null) ? \DateTime::createFromFormat($this->_config['check_date_format'], $this->_config['check_date_from']) : null;
+        $to   = ($this->_config['check_date_to']   !== null) ? \DateTime::createFromFormat($this->_config['check_date_format'], $this->_config['check_date_to'])   : null;
+        if($from === false || $to === false){
+            return false;
+        }
+
+        if($from !== null && $to !== null){
+            if($from > $to){
+                $temp = clone $from;
+                $from = clone $to;
+                $to   = clone $temp;
+                unset($temp);
+            }
+
+            if($now >= $from && $now <= $to){
+                return true;
+            }
+        } else if($from !== null && $now >= $from){
+            return true;
+        } else if($to !== null && $now <= $to){
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -142,7 +188,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
             return false;
         }
 
-        $thruIPArray = $this->getConfig('thru_ip_list');
+        $thruIPArray = $this->_config['thru_ip_list'];
         if(empty($thruIPArray)){
             return false;
         }
