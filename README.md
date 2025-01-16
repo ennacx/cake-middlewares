@@ -1,5 +1,11 @@
 # CakePHP Middlewares
 
+[![PHP Version Require](http://poser.pugx.org/ennacx/cake-middlewares/require/php)](https://packagist.org/packages/ennacx/cake-middlewares)
+[![Latest Stable Version](http://poser.pugx.org/ennacx/cake-middlewares/v)](https://packagist.org/packages/ennacx/cake-middlewares)
+[![Total Downloads](http://poser.pugx.org/ennacx/cake-middlewares/downloads)](https://packagist.org/packages/ennacx/cake-middlewares)
+[![Latest Unstable Version](http://poser.pugx.org/ennacx/cake-middlewares/v/unstable)](https://packagist.org/packages/ennacx/cake-middlewares)
+[![License](http://poser.pugx.org/ennacx/cake-middlewares/license)](https://packagist.org/packages/ennacx/cake-middlewares)
+
 ## Requires
 * PHP 8.1 or later
 * composer 2.0 or later
