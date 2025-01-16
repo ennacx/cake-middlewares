@@ -113,7 +113,6 @@ If you specify ```check_method``` as ```MaintenanceCheckMethod::FILE```, you can
 
 ```php
 <?php
-
 /*
  * Specifies the path of the flag file.
  * If not specified or null, the path of "TMP . 'maintenance'" will be referenced.
@@ -148,7 +147,7 @@ $result = $sw->off();
 $result = $sw->toggle();
 
 /*
- * Check for the existence of the maintenance file.
+ * Check for the existence of the maintenance flag file.
  */
 $maintenance = $sw->isMaintenance();
 ```
