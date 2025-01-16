@@ -19,8 +19,9 @@ composer require ennacx/cake-middlewares
 #### Installation
 
 ```php
-// in src/Application.php
 <?php
+// in src/Application.php
+
 use Ennacx\CakeMiddlewares\Enum\MaintenanceCheckMethod;
 use Ennacx\CakeMiddlewares\Middleware\MaintenanceMiddleware;
 
@@ -101,10 +102,56 @@ Recommended to insert it next to RoutingMiddleware.
   * The format of this date(time) will be determined in ```check_date_format``` below.
 * check_date_format (```string```)
   * Specifies the format of the date(time) described in ```check_date_from``` and ```check_date_to```.
-* maintenance_message (```string```)
+* maintenance_message (```string``` or ```null```)
   * Specify the message to be passed to the CakePHP Exception argument if there is one. If not, leave it unspecified or specify ```null```.
 * use_proxy (```bool```)
   * This is necessary to determine whether to obtain the IP from ```HTTP_X_FORWARDED_FOR```, in order to obtain the IP from the ```clientIP()``` method of the ```\Cake\Http\ServerRequest``` object and determine whether it is an IP to be passed through.
+
+#### Utility
+
+If you specify ```check_method``` as ```MaintenanceCheckMethod::FILE```, you can use this switcher to easily switch the maintenance state, for example, by batch or command.
+
+```php
+<?php
+
+/*
+ * Specifies the path of the flag file.
+ * If not specified or null, the path of "TMP . 'maintenance'" will be referenced.
+ */
+$flagFilePath = TMP . 'maintenance_flag_file';
+
+// Get instance
+$sw = \Ennacx\CakeMiddlewares\Utils\MaintenanceSwitch::getInstance($flagFilePath);
+
+/*
+ * To maintenance mode
+ * 
+ * If it returns false, it is already in maintenance mode.
+ * If the file creation fails, throws \RuntimeException.
+ */
+$result = $sw->on();
+
+/*
+ * To Operation mode
+ * 
+ * If it returns false, it is already in operation mode.
+ * If the file remove fails, throws \RuntimeException.
+ */
+$result = $sw->off();
+
+/*
+ * Switching between Maintenance and Operation
+ * 
+ * Executes one of the on() and off() methods depending on the existence of a maintenance file.
+ * If the file creation/remove fails, throws \RuntimeException.
+ */
+$result = $sw->toggle();
+
+/*
+ * Check for the existence of the maintenance file.
+ */
+$maintenance = $sw->isMaintenance();
+```
 
 ## License
 [MIT](https://en.wikipedia.org/wiki/MIT_License)
