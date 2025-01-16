@@ -23,7 +23,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
      *
      * @var array
      */
-    private array $_defaultConfig = [
+    private const DEFAULT_CONFIG = [
         'thru_ip_list' => [],
 
         'check_method' => MaintenanceCheckMethod::FLAG,
@@ -62,7 +62,7 @@ class MaintenanceMiddleware implements MiddlewareInterface {
      */
     public function __construct(array $config = []){
 
-        $this->_config = array_merge($this->_defaultConfig, $config);
+        $this->_config = array_merge(self::DEFAULT_CONFIG, $config);
     }
 
     /**
