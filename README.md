@@ -60,7 +60,7 @@ class Application extends BaseApplication
 
                 'maintenance_message' => 'Sorry, we are currently performing server maintenance.',
 
-                'trust_proxy' => true
+                'use_proxy' => true
             ]))
 
             // Parse various types of encoded request bodies so that they are
@@ -83,18 +83,28 @@ Recommended to insert it next to RoutingMiddleware.
 
 #### Options
 
-* thru_ip_list
+* thru_ip_list (```string[]```)
   * Specify the IP addresses, including the mask length, that can be skipped during maintenance and used to run normal applications.
-* check_method
+* check_method (```Ennacx\CakeMiddlewares\Enum\MaintenanceCheckMethod```)
   * Specify either ```Ennacx\CakeMiddlewares\Enum\MaintenanceCheckMethod``` enum.
-* check_file_path
-  * This is a required parameter when you specify ```MaintenanceCheckMethod::FILE``` to ```check_method```, and specifies the full path of the file. The existence of this file is checked to determine whether the device is in maintenance mode.
-* is_maintenance
+* check_file_path (```string```)
+  * This is a required parameter when you specify ```MaintenanceCheckMethod::FILE``` to ```check_method```, and specifies the full path of the file. The existence of this file is checked to determine whether the system is in maintenance mode.
+* is_maintenance (```bool```)
   * This is a required parameter when you specify ```MaintenanceCheckMethod::FLAG``` to ```check_method```. This boolean value is used to determine whether the device is under maintenance.
-* maintenance_message
+* check_date_from (```string``` or ```null```)
+  * This is a required parameter when you specify ```MaintenanceCheckMethod::DATE``` to ```check_method```. The system will be in maintenance mode from this date(time) onwards.
+  * If ```null``` specified, the maintenance state will continue until the date(time) specified in ```check_date_to```.
+  * The format of this date(time) will be determined in ```check_date_format``` below.
+* check_date_to (```string``` or ```null```)
+  * This is a required parameter when you specify ```MaintenanceCheckMethod::DATE``` to ```check_method```. The system will be under maintenance until this date(time).
+  * If ```null``` specified, the maintenance state will continue from the date(time) specified in ```check_date_from```.
+  * The format of this date(time) will be determined in ```check_date_format``` below.
+* check_date_format (```string```)
+  * Specifies the format of the date(time) described in ```check_date_from``` and ```check_date_to```.
+* maintenance_message (```string```)
   * Specify the message to be passed to the CakePHP Exception argument if there is one. If not, leave it unspecified or specify ```null```.
-* trust_proxy
-  * This is necessary to determine whether to obtain the IP from ```X-Forwareded-For```, in order to obtain the IP from the ```clientIP()``` method of the ```\Cake\Http\ServerRequest``` object and determine whether it is an IP to be passed through.
+* use_proxy (```bool```)
+  * This is necessary to determine whether to obtain the IP from ```HTTP_X_FORWARDED_FOR```, in order to obtain the IP from the ```clientIP()``` method of the ```\Cake\Http\ServerRequest``` object and determine whether it is an IP to be passed through.
 
 ## License
 [MIT](https://en.wikipedia.org/wiki/MIT_License)
